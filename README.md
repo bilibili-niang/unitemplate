@@ -343,7 +343,7 @@ export const useMemberStore = defineStore(
 
 ## uni.request 请求封装
 
-### 请求和上传文件拦截器
+### 第一种：请求和上传文件拦截器
 
 **uniapp 拦截器**： [uni.addInterceptor](https://uniapp.dcloud.net.cn/api/interceptor.html)
 
@@ -394,3 +394,306 @@ uni.addInterceptor('request', httpInterceptor)
 uni.addInterceptor('uploadFile', httpInterceptor)
 ```
 
+#### 封装 Promise 请求函数
+
+> 实现需求
+>
+> 1. 返回 Promise 对象，用于处理返回值类型
+> 2. 成功 resolve
+>    1. 提取数据
+>    2. 添加泛型
+> 3. 失败 reject
+>    1. 401 错误
+>    2. 其他错误
+>    3. 网络错误
+
+**参考代码**
+
+```tsx
+/**
+ * 请求函数
+ * @param  UniApp.RequestOptions
+ * @returns Promise
+ *  1. 返回 Promise 对象，用于处理返回值类型
+ *  2. 获取数据成功
+ *    2.1 提取核心数据 res.data
+ *    2.2 添加类型，支持泛型
+ *  3. 获取数据失败
+ *    3.1 401错误  -> 清理用户信息，跳转到登录页
+ *    3.2 其他错误 -> 根据后端错误信息轻提示
+ *    3.3 网络错误 -> 提示用户换网络
+ */
+type Data<T> = {
+  code: string
+  msg: string
+  result: T
+}
+// 2.2 添加类型，支持泛型
+export const http = <T>(options: UniApp.RequestOptions) => {
+  // 1. 返回 Promise 对象
+  return new Promise<Data<T>>((resolve, reject) => {
+    uni.request({
+      ...options,
+      // 响应成功
+      success(res) {
+        // 状态码 2xx，参考 axios 的设计
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          // 2.1 提取核心数据 res.data
+          resolve(res.data as Data<T>)
+        } else if (res.statusCode === 401) {
+          // 401错误  -> 清理用户信息，跳转到登录页
+          const memberStore = useMemberStore()
+          memberStore.clearProfile()
+          uni.navigateTo({ url: '/pages/login/login' })
+          reject(res)
+        } else {
+          // 其他错误 -> 根据后端错误信息轻提示
+          uni.showToast({
+            icon: 'none',
+            title: (res.data as Data<T>).msg || '请求错误',
+          })
+          reject(res)
+        }
+      },
+      // 响应失败
+      fail(err) {
+        uni.showToast({
+          icon: 'none',
+          title: '网络错误，换个网络试试',
+        })
+        reject(err)
+      },
+    })
+  })
+}
+```
+
+#### **整体代码**
+
+```tsx
+/**
+ * 添加拦截器:
+ *   拦截 request 请求
+ *   拦截 uploadFile 文件上传
+ *
+ * TODO:
+ *   1. 非 http 开头需拼接地址
+ *   2. 请求超时
+ *   3. 添加小程序端请求头标识
+ *   4. 添加 token 请求头标识
+ */
+
+import { useMemberStore } from '@/stores'
+
+const baseURL = 'https://pcapi-xiaotuxian-front-devtest.itheima.net'
+
+// 添加拦截器
+const httpInterceptor = {
+  // 拦截前触发
+  invoke(options: UniApp.RequestOptions) {
+    // 1. 非 http 开头需拼接地址
+    if (!options.url.startsWith('http')) {
+      options.url = baseURL + options.url
+    }
+    // 2. 请求超时, 默认 60s
+    options.timeout = 10000
+    // 3. 添加小程序端请求头标识
+    options.header = {
+      ...options.header,
+      'source-client': 'miniapp',
+    }
+    // 4. 添加 token 请求头标识
+    const memberStore = useMemberStore()
+    const token = memberStore.profile?.token
+    if (token) {
+      options.header.Authorization = token
+    }
+  },
+}
+uni.addInterceptor('request', httpInterceptor)
+uni.addInterceptor('uploadFile', httpInterceptor)
+
+/**
+ * 请求函数
+ * @param  UniApp.RequestOptions
+ * @returns Promise
+ *  1. 返回 Promise 对象
+ *  2. 获取数据成功
+ *    2.1 提取核心数据 res.data
+ *    2.2 添加类型，支持泛型
+ *  3. 获取数据失败
+ *    3.1 401错误  -> 清理用户信息，跳转到登录页
+ *    3.2 其他错误 -> 根据后端错误信息轻提示
+ *    3.3 网络错误 -> 提示用户换网络
+ */
+type Data<T> = {
+  code: string
+  msg: string
+  result: T
+}
+// 2.2 添加类型，支持泛型
+export const http = <T>(options: UniApp.RequestOptions) => {
+  // 1. 返回 Promise 对象
+  return new Promise<Data<T>>((resolve, reject) => {
+    uni.request({
+      ...options,
+      // 响应成功
+      success(res) {
+        // 状态码 2xx， axios 就是这样设计的
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          // 2.1 提取核心数据 res.data
+          resolve(res.data as Data<T>)
+        } else if (res.statusCode === 401) {
+          // 401错误  -> 清理用户信息，跳转到登录页
+          const memberStore = useMemberStore()
+          memberStore.clearProfile()
+          uni.navigateTo({ url: '/pages/login/login' })
+          reject(res)
+        } else {
+          // 其他错误 -> 根据后端错误信息轻提示
+          uni.showToast({
+            icon: 'none',
+            title: (res.data as Data<T>).msg || '请求错误',
+          })
+          reject(res)
+        }
+      },
+      // 响应失败
+      fail(err) {
+        uni.showToast({
+          icon: 'none',
+          title: '网络错误，换个网络试试',
+        })
+        reject(err)
+      },
+    })
+  })
+}
+
+```
+
+### 第二种：推荐封装（兼容PC、APP，小程序）
+
+**参考代码**
+
+```json
+import { nanoid } from 'nanoid'
+import { checkLogin, getNowDate, isTokenLose, removeStorage } from '@/utils/global.js'
+import { AUTHORIZATION, JWTVALIDATE, CLIENTID, JWTVALIDATETIME} from '@/utils/constant.js'
+
+export let base_url = ''
+export let context = ''
+export let h5_url = ''
+// H5
+// let url ='/api/system/login' //需要拼接上/api
+// #ifdef H5
+	// base_url = 'http://10.1.28.121:9001'
+	h5_url = 'https://uniapp.t.yindangu.com' // 用来打开PC端页面
+	context = '/api'
+// #endif
+
+// MP
+// let url = base_url + '/system/login'
+// #ifdef MP-WEIXIN
+	const accountInfo = wx.getAccountInfoSync();
+	// env类型
+	export const env = accountInfo.miniProgram.envVersion || 'develop';
+	// 系统判断区分url
+	const baseApi = {
+		// 开发版
+		develop: {
+			apiUrl: "https://uniapp.t.yindangu.com", //开发版
+		},
+		// 体验版
+		trial: {
+			apiUrl: "https://uniapp.t.yindangu.com", //体验环境
+		},
+		// 正式版
+		release: {
+			apiUrl: "https://uniapp.t.yindangu.com", //正式环境
+		}
+	}
+	base_url = baseApi[env].apiUrl
+	context = ''
+	
+// #endif
+
+// #ifdef APP-PLUS
+	base_url = "https://uniapp.t.yindangu.com"
+	context = ''
+// #endif
+
+export const request = async (params) => {
+	
+	// 参数
+	const {
+		url = '', data = {}, type = '', method = 'POST'
+	} = params
+	
+	
+	// 配置请求头
+	let authorization = uni.getStorageSync(AUTHORIZATION) || ''
+	let LoginClientId = uni.getStorageSync(CLIENTID) || ''
+	// const res = await JWTValidateJson({ LoginClientId, jwt: authorization, timeStamp: Date.now(), nonce: LoginClientId })
+	// console.log(res, 'JWTValidateJson');
+	await JWTValidateJson({ LoginClientId, jwt: authorization, timeStamp: Date.now(), nonce: LoginClientId })
+	// console.log(11111);
+	let jwtValidate = uni.getStorageSync(JWTVALIDATE) || ''
+	let header = {
+		"content-type": "application/json; charset=utf-8",
+		"Authorization": authorization,
+		'V-Jwt-Login-State': 'login',
+		'V-Jwt-Validate': jwtValidate
+	}
+
+	// 请求
+	return new Promise(async (resolve, reject) => {
+		await uni.request({
+			url: base_url + context + url,
+			data,
+			header,
+			method,
+			// withCredentials: true
+		}).then((res) => {
+			if(res.statusCode == 200) {
+				resolve(res.data.data)
+			} else {
+				reject(res)
+			}
+		}).catch((err) => {
+			return uni.showToast({
+				icon: "none",
+				title: "请求接口失败"
+			})
+			reject(err)
+		})
+	})
+}
+
+
+/**
+ * JWT校验加密值
+ */
+export const JWTValidateJson =(params) => {
+	if(!isTokenLose()) return
+	return new Promise((resolve, reject) => {
+		uni.request({
+			url: base_url + context +'/webapi/vbase_prd_united_login_api/API_JWTValidateJson',
+			data: params,
+			method: 'POST'
+		}).then(res => {
+			uni.setStorageSync(JWTVALIDATETIME, getNowDate())
+			uni.setStorageSync(JWTVALIDATE, res.data.data.jwtValidate)
+			resolve(res)
+		}).catch(err => {
+			reject(err)
+		})
+	})
+}
+```
+
+## 【拓展】代码规范
+
+**为什么需要代码规范**
+
+如果没有统一代码风格，团队协作不便于查看代码提交时所做的修改。
