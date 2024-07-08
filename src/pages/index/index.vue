@@ -4,12 +4,26 @@
     <view class="text-area">
       <text class="title">{{ title }}</text>
     </view>
+    <view>{{ memberStore.profile.id }}</view>
+    <view>{{ profileId }}</view>
+    <view>是否会员：{{ memberStore.profile.isMember ? '是' : '否' }}</view>
+    <view>{{ profileName }}</view>
+    <button @click="updateName">修改名字</button>
   </view>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+// import { ref } from 'vue'
+import { useMemberStore } from '@/store'
+
+const memberStore = useMemberStore()
+const profileId = computed(() => memberStore.profile.id)
+
+const profileName = computed(() => memberStore.profile.name)
 const title = ref('Hello')
+const updateName = () => {
+  memberStore.setProfile({ ...memberStore.profile, name: '李四', isMember: false })
+}
 </script>
 
 <style>
