@@ -1,21 +1,21 @@
 <template>
-  <div
-    class="content"
-    @click="test"
-  >
+  <div class="content" @click="test">
+    <div v-if="activeTabKey === 'home'">
+      <div @click="showPicker">
+        {{ showDate() }}
+      </div>
+      <datePicker
+        ref="pickerRef"
+        :defaultLunar="true"
+        :defaultDate="defaultDate"
+        @submit="getSubmitData"
+      />
 
-    <div @click="showPicker">
-      {{ showDate() }}
     </div>
-    <datePicker
-      ref="pickerRef"
-      :defaultLunar="true"
-      :defaultDate="defaultDate"
-      @submit="getSubmitData"
-    />
-    <TabBars
-      :tabs="Tabbars"
-    />
+    <div v-else-if="activeTabKey === 'cart'">这里是购物车内容</div>
+    <div v-else-if="activeTabKey === 'mine'">这里是我的内容</div>
+
+    <TabBars :tabs="tabList" :active="activeTabKey" @update:active="activeTabKey = $event" class="tab-content" />
   </div>
 </template>
 
@@ -58,26 +58,20 @@ const showDate = () => {
     return '请选择日期'
   }
 }
-const avtive=ref('0')
 
-const Tabbars = ref([
-  {
-    text: '首页',
-    icon: 'icon-shouye',
-    active: '0',
-  },
-  {
-    text: '购物车',
-    icon: 'icon-gouwuche',
-    active: '1',
-  },
-  {
-    text: '我的',
-    icon: 'icon-wode',
-    active: '2',
-  },
-])
-
+const activeTabKey = ref('home')
+const tabList = [
+  { key: 'home', text: '首页' },
+  { key: 'cart', text: '购物车' },
+  { key: 'mine', text: '我的' },
+]
 </script>
 
-<style></style>
+<style>
+.tab-content {
+  position: fixed;
+  bottom: 30px;
+  left: 0;
+  width: 100%;
+}
+</style>
