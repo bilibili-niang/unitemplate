@@ -50,6 +50,9 @@ importers:
       '@dcloudio/uni-ui':
         specifier: ^1.5.7
         version: 1.5.7
+      js-calendar-converter:
+        specifier: ^0.0.7
+        version: 0.0.7
       pinia:
         specifier: 2.0.27
         version: 2.0.27(typescript@4.9.5)(vue@3.2.47)
@@ -65,6 +68,9 @@ importers:
       vue-i18n:
         specifier: ^9.1.9
         version: 9.10.2(vue@3.2.47)
+      vue3-hash-calendar:
+        specifier: ^1.1.3
+        version: 1.1.3(vue@3.2.47)
     devDependencies:
       '@dcloudio/types':
         specifier: ^3.3.2
@@ -3152,6 +3158,9 @@ packages:
   jpeg-js@0.3.7:
     resolution: {integrity: sha512-9IXdWudL61npZjvLuVe/ktHiA41iE8qFyLB+4VDTblEsWBzeg8WQTlktdUK4CdncUqtUgUg0bbOmTE2bKBKaBQ==}
 
+  js-calendar-converter@0.0.7:
+    resolution: {integrity: sha512-w4QSGDwWaxBAxmWdfOC2CHVxEFxu48WUm9191uomUPabDyx/pVKSapZebBBVBv/H5GQc5hzDPOPmOLVA31bqjQ==}
+
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
@@ -4530,6 +4539,11 @@ packages:
     hasBin: true
     peerDependencies:
       typescript: '*'
+
+  vue3-hash-calendar@1.1.3:
+    resolution: {integrity: sha512-BQyr3NtzlUOzEqb8e28TpIETtFdpvv6N90S4dSljYOqkK83hQKaMzKF2KEfuFqQwA1FOfK1eUS2lJgITSAnL4A==}
+    peerDependencies:
+      vue: ^3.0.0
 
   vue@3.2.47:
     resolution: {integrity: sha512-60188y/9Dc9WVrAZeUVSDxRQOZ+z+y5nO2ts9jWXSTkMvayiWxCWOWtBQoYjLeccfXkiiPZWAHcV+WTPhkqJHQ==}
@@ -8821,6 +8835,8 @@ snapshots:
 
   jpeg-js@0.3.7: {}
 
+  js-calendar-converter@0.0.7: {}
+
   js-tokens@4.0.0: {}
 
   js-tokens@9.0.0: {}
@@ -10269,6 +10285,10 @@ snapshots:
       '@vue/language-core': 1.8.27(typescript@4.9.5)
       semver: 7.6.0
       typescript: 4.9.5
+
+  vue3-hash-calendar@1.1.3(vue@3.2.47):
+    dependencies:
+      vue: 3.2.47
 
   vue@3.2.47:
     dependencies:

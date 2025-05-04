@@ -1,0 +1,131 @@
+.view-column.second .select-line {
+  border-radius: 0 16rpx 16rpx 0;
+}
+.view-column.first .select-line {
+  border-radius: 16rpx 0 0 16rpx;
+}
+.select-line::after {
+  border-bottom: 2rpx solid #fff1ec;
+}
+.select-line::before {
+  border-top: 2rpx solid #fff1ec;
+}
+.birthday-picker {
+  position: relative;
+  z-index: 999;
+}
+.birthday-picker picker-view {
+  height: 100%;
+}
+.birthday-picker .mask {
+  position: fixed;
+  z-index: 1000;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  visibility: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+.birthday-picker .mask.show {
+  visibility: visible;
+  opacity: 1;
+}
+.birthday-picker .wrap {
+  z-index: 1001;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  transition: all 0.3s ease;
+  transform: translateY(100%);
+}
+.birthday-picker .wrap.show {
+  transform: translateY(0);
+}
+.birthday-picker .picker-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0px 10px;
+  background-color: #f0f0f0;
+  height: 54px;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+}
+.birthday-picker .picker-header .change {
+  width: 100px;
+  height: 34px;
+  line-height: 34px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+}
+.birthday-picker .picker-header .change view {
+  flex: 1;
+  font-size: 17px;
+  font-weight: 400;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.birthday-picker .picker-header .change .active {
+  color: white;
+}
+.birthday-picker .picker-header .submit {
+  width: 100px;
+  flex-direction: row;
+  justify-content: flex-end;
+  text-align: right;
+}
+.birthday-picker .picker-header .submit view {
+  flex: 1;
+}
+.birthday-picker .picker-header .submit text {
+  font-size: 18px;
+  font-weight: 500;
+}
+.birthday-picker .picker-header text {
+  margin: 0px 5px;
+  display: inline-block;
+  flex: 1;
+  font-size: 16px;
+  font-weight: 400;
+  color: #666;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.birthday-picker .picker-body {
+  width: 100%;
+  height: 250px;
+  overflow: hidden;
+  background-color: #fff;
+  padding: 0 12px;
+}
+.birthday-picker .picker-view-column view {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.birthday-picker .select-line {
+  background: rgba(230, 230, 230, 0.3);
+  height: 40px;
+  line-height: 40px;
+}
+.birthday-picker .select-item {
+  font-size: 39rpx;
+  font-weight: 600;
+  color: #222;
+}
+.birthday-picker .column-item {
+  font-size: 39rpx;
+  font-weight: 400;
+  color: #222;
+}
