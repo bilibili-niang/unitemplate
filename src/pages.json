@@ -12,6 +12,12 @@
       "style": {
         "navigationBarTitleText": "uni-app"
       }
+    },
+    {
+      "path": "pages/addContact/index",
+      "style": {
+        "navigationBarTitleText": "添加生日"
+      }
     }
   ],
   "globalStyle": {
